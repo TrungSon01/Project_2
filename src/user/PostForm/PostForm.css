@@ -1,0 +1,51 @@
+/* src/styles/postform.css */
+.post-container {
+  background: #fff;
+  padding: 1.5rem;
+  width: 100%;
+  max-width: 600px;
+  margin: auto;
+  font-family: sans-serif;
+}
+
+.dropdown-group {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+select {
+  padding: 0.5rem;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  flex: 1;
+}
+
+.text-input {
+  width: 100%;
+  height: 100px;
+  padding: 0.75rem;
+  border: 1px solid #000;
+  border-radius: 10px;
+  margin-bottom: 1rem;
+  resize: none;
+}
+
+.upload-section {
+  margin: 1rem 0;
+}
+
+.location-section {
+  margin-bottom: 1rem;
+}
+
+.location-label {
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+}
+
+.map-preview img {
+  width: 100%;
+  border-radius: 12px;
+  margin-top: 1rem;
+}
