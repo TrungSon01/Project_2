@@ -1,14 +1,13 @@
-/* LoginPage.css */
-
 .login-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
+  height: 50vh;
+  width: 50vw;
+  border-radius: 30px;
 }
 
 .login-form {
-  width: 360px;
   text-align: center;
 }
 

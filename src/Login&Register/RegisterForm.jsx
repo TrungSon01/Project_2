@@ -60,59 +60,64 @@ const RegisterForm = ({ onSuccess }) => {
   };
 
   return (
-    <div className="register-container">
-      <div className="register-form">
-        <div className="register-title">Đăng ký</div>
+    <div className="flex justify-center items-center h-screen ">
+      <div className="register-container shadow shadow-gray-500 transition-shadow duration-300 hover:shadow-2xl hover:shadow-gray-500">
+        <div className="register-form">
+          <div className="register-title">Đăng ký</div>
 
-        <Form
-          form={form}
-          name="register"
-          onFinish={onFinish}
-          initialValues={{}}
-          layout="vertical"
-        >
-          <Form.Item
-            name="username"
-            rules={[{ required: true, message: "Vui lòng nhập tên" }]}
+          <Form
+            form={form}
+            name="register"
+            onFinish={onFinish}
+            initialValues={{}}
+            layout="vertical"
           >
-            <Input prefix={<UserOutlined />} placeholder="Họ và tên" />
-          </Form.Item>
+            <Form.Item
+              name="username"
+              rules={[{ required: true, message: "Vui lòng nhập tên" }]}
+            >
+              <Input prefix={<UserOutlined />} placeholder="Họ và tên" />
+            </Form.Item>
 
-          <Form.Item
-            name="email"
-            rules={[
-              { type: "email", message: "Email không hợp lệ!" },
-              { required: true, message: "Vui lòng nhập email!" },
-            ]}
-          >
-            <Input prefix={<MailOutlined />} placeholder="Email" />
-          </Form.Item>
+            <Form.Item
+              name="email"
+              rules={[
+                { type: "email", message: "Email không hợp lệ!" },
+                { required: true, message: "Vui lòng nhập email!" },
+              ]}
+            >
+              <Input prefix={<MailOutlined />} placeholder="Email" />
+            </Form.Item>
 
-          <Form.Item
-            name="password"
-            rules={[{ required: true, message: "Vui lòng nhập mật khẩu!" }]}
-          >
-            <Input.Password prefix={<LockOutlined />} placeholder="Mật khẩu" />
-          </Form.Item>
+            <Form.Item
+              name="password"
+              rules={[{ required: true, message: "Vui lòng nhập mật khẩu!" }]}
+            >
+              <Input.Password
+                prefix={<LockOutlined />}
+                placeholder="Mật khẩu"
+              />
+            </Form.Item>
 
-          <Form.Item
-            name="phone"
-            rules={[
-              { required: true, message: "Vui lòng nhập số điện thoại!" },
-            ]}
-          >
-            <Input prefix={<PhoneOutlined />} placeholder="Số điện thoại" />
-          </Form.Item>
+            <Form.Item
+              name="phone"
+              rules={[
+                { required: true, message: "Vui lòng nhập số điện thoại!" },
+              ]}
+            >
+              <Input prefix={<PhoneOutlined />} placeholder="Số điện thoại" />
+            </Form.Item>
 
-          <Form.Item>
-            <Button htmlType="submit" className="register-button">
-              Đăng ký
-            </Button>
-          </Form.Item>
-        </Form>
+            <Form.Item>
+              <Button htmlType="submit" className="register-button">
+                Đăng ký
+              </Button>
+            </Form.Item>
+          </Form>
 
-        <div className="switch-link">
-          Bạn đã có tài khoản? <a href="/login">Đăng nhập</a>
+          <div className="switch-link">
+            Bạn đã có tài khoản? <a href="/login">Đăng nhập</a>
+          </div>
         </div>
       </div>
     </div>

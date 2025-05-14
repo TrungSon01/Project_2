@@ -1,10 +1,9 @@
 import axios from "axios";
-
-const BASE_URL = "https://681b23bf17018fe5057a3fd7.mockapi.io/login";
+import { https } from "./config";
 
 export const loginService = async ({ email, password }) => {
   try {
-    const response = await axios.get(`${BASE_URL}/register`);
+    const response = await https.get(`/register`);
     const users = response.data;
 
     const foundUser = users.find(
@@ -23,10 +22,5 @@ export const loginService = async ({ email, password }) => {
 };
 
 export const registerService = (user) => {
-  return axios({
-    url: `${BASE_URL}/register`,
-
-    method: "POST",
-    data: user,
-  });
+  return https.post(`/register`, user);
 };

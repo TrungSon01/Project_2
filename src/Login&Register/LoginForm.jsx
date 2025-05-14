@@ -6,6 +6,7 @@ import { useNavigate } from "react-router";
 import toast from "react-hot-toast";
 import { UserOutlined, LockOutlined } from "@ant-design/icons";
 import "./Login.css";
+import { hideLoading, showLoading } from "../redux/loadingSlice";
 // dispatch với use selector
 export default function LoginPage() {
   const dispatch = useDispatch();
@@ -16,6 +17,12 @@ export default function LoginPage() {
       .then((user) => {
         // Nếu tìm thấy user, dispatch và navigate
         dispatch(setUserAction(user));
+        console.log("user: ", user);
+
+        const userAccount = { email, password };
+        const userJson = JSON.stringify(userAccount);
+        console.log(userAccount);
+        localStorage.setItem("userAccount", userJson);
         navigate("/");
         toast.success("đăng nhập thành công");
       })
@@ -33,55 +40,57 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="login-container shadow transition-shadow duration-300 hover:shadow-lg">
-      <Form
-        name="login"
-        initialValues={{}}
-        onFinish={onFinish}
-        className="login-form"
-      >
-        <h2 className="login-title">Đăng nhập</h2>
-
-        <Form.Item
-          name="email"
-          rules={[{ required: true, message: "Vui lòng nhập email!" }]}
+    <div className="flex justify-center items-center h-screen ">
+      <div className="login-container shadow shadow-gray-500 transition-shadow duration-300 hover:shadow-2xl hover:shadow-gray-500">
+        <Form
+          name="login"
+          initialValues={{}}
+          onFinish={onFinish}
+          className="login-form"
         >
-          <Input
-            prefix={<UserOutlined />}
-            placeholder="Nhập email"
-            size="large"
-          />
-        </Form.Item>
+          <h2 className="login-title">Đăng nhập</h2>
 
-        <Form.Item
-          name="password"
-          rules={[{ required: true, message: "Vui lòng nhập mật khẩu!" }]}
-        >
-          <Input.Password
-            prefix={<LockOutlined />}
-            placeholder="Nhập mật khẩu"
-            size="large"
-          />
-        </Form.Item>
-
-        <Form.Item>
-          <Button
-            block
-            type="primary"
-            htmlType="submit"
-            className="login-button"
+          <Form.Item
+            name="email"
+            rules={[{ required: true, message: "Vui lòng nhập email!" }]}
           >
-            Đăng nhập
-          </Button>
-        </Form.Item>
+            <Input
+              prefix={<UserOutlined />}
+              placeholder="Nhập email"
+              size="large"
+            />
+          </Form.Item>
 
-        <a href="/register" className="login-link">
-          Bạn chưa có tài khoản? <strong>Đăng ký</strong>
-        </a>
-        <a href="/" className="login-link">
-          xem trước
-        </a>
-      </Form>
+          <Form.Item
+            name="password"
+            rules={[{ required: true, message: "Vui lòng nhập mật khẩu!" }]}
+          >
+            <Input.Password
+              prefix={<LockOutlined />}
+              placeholder="Nhập mật khẩu"
+              size="large"
+            />
+          </Form.Item>
+
+          <Form.Item>
+            <Button
+              block
+              type="primary"
+              htmlType="submit"
+              className="login-button"
+            >
+              Đăng nhập
+            </Button>
+          </Form.Item>
+
+          <a href="/register" className="login-link">
+            Bạn chưa có tài khoản? <strong>Đăng ký</strong>
+          </a>
+          <a href="/" className="login-link">
+            xem trước
+          </a>
+        </Form>
+      </div>
     </div>
   );
 }

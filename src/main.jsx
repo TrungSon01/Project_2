@@ -4,9 +4,11 @@ import "./index.css";
 import App from "./App.jsx";
 import { configureStore } from "@reduxjs/toolkit";
 import userSlice from "./redux/userSlice";
+import loadingSlice from "./redux/loadingSlice.js";
 export const store = configureStore({
   reducer: {
     userSlice: userSlice,
+    loadingSlice: loadingSlice,
   },
 });
 
