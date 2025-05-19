@@ -11,6 +11,7 @@ export const loginService = async ({ email, password }) => {
     );
 
     if (foundUser) {
+      console.log("foundUser", foundUser);
       return foundUser;
     } else {
       throw new Error("User not found or incorrect password");

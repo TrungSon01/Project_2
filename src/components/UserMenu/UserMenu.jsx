@@ -3,8 +3,8 @@ import { Avatar, Dropdown } from "antd";
 import { UserOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { logoutUser } from "../../redux/userSlice"; // <-- import action
-
+import { logoutUser } from "../../redux/userSlice";
+import "./UserMenu.css";
 export default function UserMenu() {
   const [userInfo, setUserInfo] = useState(null);
   const { user } = useSelector((state) => state.userSlice);
@@ -12,7 +12,7 @@ export default function UserMenu() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    const user = JSON.parse(localStorage.getItem("USER"));
+    const user = JSON.parse(localStorage.getItem("userAccount"));
     if (user) {
       setUserInfo(user);
     }
@@ -23,30 +23,61 @@ export default function UserMenu() {
     dispatch(logoutUser());
 
     // 2. Xóa localStorage
-    localStorage.removeItem("USER");
+    localStorage.removeItem("userAccount");
 
     // 3. Điều hướng về trang login
-    navigate("/login&register");
+    navigate("/login");
   };
+
+  // ...(user?.maLoaiNguoiDung === "QuanTri"
+  //   ? [
+  //       {
+  //         key: "2",
+  //         label: (
+  //           <span onClick={() => navigate("/admin")}>Trang quản lý</span>
+  //         ),
+  //       },
+  //     ]
+  //   : []),
 
   const items = [
     {
       key: "1",
-      label: <span>Tên: {user?.hoTen}</span>,
+      label: (
+        <span className="dropdown-item" style={{ animationDelay: "0.1s" }}>
+          Tên: {user?.email}
+        </span>
+      ),
     },
-    ...(user?.maLoaiNguoiDung === "QuanTri"
-      ? [
-          {
-            key: "2",
-            label: (
-              <span onClick={() => navigate("/admin")}>Trang quản lý</span>
-            ),
-          },
-        ]
-      : []),
+    {
+      type: "divider",
+    },
     {
       key: "3",
-      label: <span onClick={handleLogout}>Đăng xuất</span>,
+      label: (
+        <span
+          className="dropdown-item"
+          onClick={() => navigate("/profile")}
+          style={{ animationDelay: "0.25s" }}
+        >
+          Hồ sơ cá nhân
+        </span>
+      ),
+    },
+    {
+      type: "divider",
+    },
+    {
+      key: "4",
+      label: (
+        <span
+          className="dropdown-item"
+          onClick={handleLogout}
+          style={{ animationDelay: "0.4s" }}
+        >
+          Đăng xuất
+        </span>
+      ),
     },
   ];
 

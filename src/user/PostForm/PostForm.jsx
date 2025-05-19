@@ -4,16 +4,28 @@ import "./PostForm.css";
 import { useDispatch } from "react-redux";
 import { hideLoading, showLoading } from "../../redux/loadingSlice";
 import imageCompression from "browser-image-compression";
+import { createPost } from "../../apis/postFormService";
+import Form from "antd/es/form/Form";
+import { Descriptions } from "antd";
+import toast from "react-hot-toast";
 function PostForm() {
   const [locationOption, setLocationOption] = useState("current");
   const [coords, setCoords] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
-  const [imageBase64, setImageBase64] = useState(null);
+  const [imageBase64, setImageBase64] = useState("");
   const [address, setAddress] = useState("");
   const [isSearching, setIsSearching] = useState(false);
+  const userAccount = JSON.parse(localStorage.getItem("userAccount") || "{}");
+  const email = userAccount.email || "";
+
+  const [form, setForm] = useState({
+    email: email,
+    species: "",
+    breed: "",
+    descriptions: "",
+  });
 
   const dispatch = useDispatch();
-  // ... existing code ...
 
   // Hàm tìm kiếm địa chỉ
   const handleAddressSearch = async () => {
@@ -66,28 +78,28 @@ function PostForm() {
   }, [locationOption]);
 
   // Xử lý khi chọn file ảnh
-
   const handleImageChange = async (e) => {
     const file = e.target.files[0];
     if (file) {
       const options = {
-        maxSizeMB: 1, // <= giới hạn khoảng 1MB
-        maxWidthOrHeight: 1024,
+        maxSizeMB: 0.1, // giảm xuống 0.3 MB ~ 300KB
+        maxWidthOrHeight: 200, // giảm kích thước ảnh
         useWebWorker: true,
       };
-
       try {
         const compressedFile = await imageCompression(file, options);
         setImagePreview(URL.createObjectURL(compressedFile));
-
         const reader = new FileReader();
         reader.onloadend = () => setImageBase64(reader.result);
         reader.readAsDataURL(compressedFile);
       } catch (error) {
-        console.error("Lỗi khi nén ảnh:", error);
         alert("Không thể xử lý ảnh.");
       }
     }
+  };
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async () => {
@@ -95,53 +107,33 @@ function PostForm() {
       alert("Vui lòng chọn vị trí!");
       return;
     }
-
-    // Nếu không có ảnh, dùng ảnh mặc định
-    const imageToSend =
-      imageBase64 ||
-      "https://static.wikia.nocookie.net/milomurphyslaw/images/9/9f/The_Phineas_and_Ferb_Effect_Image_133.jpg/revision/latest?cb=20190110161057&path-prefix=vi";
-
-    const species = document.querySelectorAll("select")[0].value;
-    const gender = document.querySelectorAll("select")[1].value;
-    const age = document.querySelectorAll("select")[2].value;
-    const description = document.querySelector(".text-input").value;
-
-    if (!species || !gender || !age || !description.trim()) {
+    if (!form.email || !form.species || !form.breed) {
+      console.log("email", email);
       alert("Vui lòng nhập đầy đủ thông tin!");
       return;
     }
-
     const postData = {
-      species,
-      gender,
-      age,
-      description,
-      image_url: imageToSend,
+      email: form.email,
+      species: form.species,
+      breed: form.breed,
       latitude: coords.latitude,
       longitude: coords.longitude,
+      image: imageBase64,
+      descriptions: form.descriptions,
+      post_time: Date.now(),
     };
-
+    console.log("imageBase64", imageBase64.slice(0, 100));
+    console.log("time", Date.now());
     try {
       dispatch(showLoading());
-      const response = await fetch(
-        "https://681b23bf17018fe5057a3fd7.mockapi.io/login/posts",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(postData),
-        }
-      );
-
-      if (!response.ok) throw new Error("Gửi bài thất bại!");
-
-      const data = await response.json();
-      alert("Đã gửi bài thành công!");
-      console.log("Phản hồi từ API:", data);
-      // reset form nếu cần
+      await createPost(postData);
+      toast.success("Đã gửi bài thành công!");
+      setForm({ email: "", species: "", breed: "" });
+      setImageBase64("");
+      setImagePreview(null);
+      setCoords(null);
     } catch (err) {
-      alert(err.message);
+      toast.error("Gửi bài thất bại!");
     } finally {
       dispatch(hideLoading());
     }
@@ -151,23 +143,70 @@ function PostForm() {
     <div className="post-container">
       <h2>Đăng bài</h2>
       <div className="dropdown-group">
-        <select>
-          <option value="">Chọn loài</option>
-          <option value="dog">Chó</option>
-          <option value="cat">Mèo</option>
+        <input
+          type="email"
+          name="email"
+          placeholder="Email"
+          hidden
+          value={form.email}
+          readOnly
+          style={{
+            padding: 8,
+            borderRadius: 8,
+            border: "1px solid #ccc",
+            backgroundColor: "#f5f5f5",
+          }}
+        />
+
+        <select
+          name="species"
+          value={form.species}
+          onChange={handleChange}
+          style={{
+            padding: 8,
+            borderRadius: 8,
+            border: "1px solid #ccc",
+            width: "100%",
+          }}
+        >
+          <option value="">-- Chọn loài --</option>
+          <option value="Chó">Chó</option>
+          <option value="Mèo">Mèo</option>
+          <option value="Hamster">Hamster</option>
         </select>
 
-        <select>
-          <option value="">Chọn giống</option>
-          <option value="male">Đực</option>
-          <option value="female">Cái</option>
-        </select>
-
-        <select>
-          <option>Tuổi</option>
+        {/* Giống */}
+        <select
+          name="breed"
+          value={form.breed}
+          onChange={handleChange}
+          style={{
+            padding: 8,
+            borderRadius: 8,
+            border: "1px solid #ccc",
+            width: "100%",
+          }}
+        >
+          <option value="">-- Chọn giống --</option>
+          <option value="Đực">Đực</option>
+          <option value="Cái">Cái</option>
         </select>
       </div>
-      <textarea placeholder="Nhập nội dung" className="text-input" />
+      <textarea
+        name="descriptions"
+        placeholder="Mô tả chi tiết..."
+        value={form.descriptions}
+        onChange={handleChange}
+        rows={3}
+        style={{
+          marginTop: 12,
+          width: "100%",
+          padding: 5,
+          borderRadius: 8,
+          border: "1px solid #ccc",
+          minHeight: 60,
+        }}
+      />
       <div className="upload-section">
         <label className="upload-label">
           <span className="icon-upload" />
@@ -195,7 +234,7 @@ function PostForm() {
             type="radio"
             value="current"
             checked={locationOption === "current"}
-            onChange={() => "current"}
+            onChange={() => setLocationOption("current")}
           />
           Vị trí hiện tại
         </label>

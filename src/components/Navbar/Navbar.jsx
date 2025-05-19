@@ -1,14 +1,16 @@
-import React, { useState } from "react";
+import React from "react";
 import {
-  FaUserCircle,
-  FaMapMarkerAlt,
   FaSearch,
-  FaBell,
+  FaMapMarkerAlt,
   FaPlus,
+  FaBell,
   FaBookmark,
 } from "react-icons/fa";
 import styled from "styled-components";
-
+import UserMenu from "../UserMenu/UserMenu";
+import { FaHouseChimney } from "react-icons/fa6";
+import { useNavigate } from "react-router";
+import HomePage from "../../HomePage/HomePage";
 const NavbarContainer = styled.div`
   position: fixed;
   height: 100vh;
@@ -17,8 +19,8 @@ const NavbarContainer = styled.div`
   border-right: 1px solid #dddddd;
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
   align-items: center;
-  justify-content: center;
   padding: 20px 0;
 `;
 
@@ -33,69 +35,44 @@ const IconButton = styled.div`
   }
 `;
 
-const AvatarMenu = styled.div`
-  position: absolute;
-  top: 90px;
-  left: 90px;
-  background-color: white;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  padding: 10px;
-  min-width: 180px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+const TopSection = styled.div``;
+const CenterSection = styled.div`
+  flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 5px;
-
-  p {
-    margin: 0;
-    padding: 8px 0;
-    border-bottom: 1px solid #ddd;
-    white-space: nowrap;
-  }
-
-  p:last-child {
-    border-bottom: none;
-  }
+  justify-content: center;
+  align-items: center;
 `;
 
-const Navbar = () => {
-  const [showMenu, setShowMenu] = useState(false);
-
-  const handleAvatarClick = () => {
-    setShowMenu(!showMenu);
-  };
-
-  const handleLogout = () => {
-    console.log("Đăng xuất");
-  };
+const Navbar = ({ onCreatePost }) => {
+  const navigate = useNavigate();
 
   return (
     <NavbarContainer>
-      <IconButton onClick={handleAvatarClick}>
-        <FaUserCircle />
-      </IconButton>
-      {showMenu && (
-        <AvatarMenu>
-          <p>Thông tin tài khoản</p>
-          <p onClick={handleLogout}>Đăng xuất</p>
-        </AvatarMenu>
-      )}
-      <IconButton>
-        <FaSearch />
-      </IconButton>
-      <IconButton>
-        <FaMapMarkerAlt />
-      </IconButton>
-      <IconButton>
-        <FaPlus />
-      </IconButton>
-      <IconButton>
-        <FaBell />
-      </IconButton>
-      <IconButton>
-        <FaBookmark />
-      </IconButton>
+      <TopSection>
+        <UserMenu />
+      </TopSection>
+
+      <CenterSection>
+        <IconButton onClick={() => navigate("/")}>
+          <FaHouseChimney />
+        </IconButton>
+        <IconButton onClick={() => console.log(Date.now())}>
+          <FaSearch />
+        </IconButton>
+        <IconButton>
+          <FaMapMarkerAlt />
+        </IconButton>
+        <IconButton onClick={() => navigate("/create-post")}>
+          <FaPlus />
+        </IconButton>
+        <IconButton>
+          <FaBell />
+        </IconButton>
+        <IconButton>
+          <FaBookmark />
+        </IconButton>
+      </CenterSection>
     </NavbarContainer>
   );
 };

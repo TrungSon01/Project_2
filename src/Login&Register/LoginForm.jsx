@@ -15,27 +15,25 @@ export default function LoginPage() {
   const handleLogin = (email, password) => {
     loginService({ email, password })
       .then((user) => {
-        // Nếu tìm thấy user, dispatch và navigate
         dispatch(setUserAction(user));
-        console.log("user: ", user);
 
-        const userAccount = { email, password };
-        const userJson = JSON.stringify(userAccount);
-        console.log(userAccount);
-        localStorage.setItem("userAccount", userJson);
+        const userAccount = {
+          username: user.username,
+          email: user.email,
+          password: user.password,
+        };
+
+        localStorage.setItem("userAccount", JSON.stringify(userAccount));
         navigate("/");
         toast.success("đăng nhập thành công");
       })
       .catch((err) => {
-        // Nếu không tìm thấy user hoặc có lỗi
         console.error("Lỗi khi đăng nhập:", err);
         toast.error("đăng nhập thất bại");
       });
   };
 
   const onFinish = (values) => {
-    console.log("Received values of form: ", values);
-
     handleLogin(values.email, values.password);
   };
 

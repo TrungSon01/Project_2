@@ -1,11 +1,13 @@
 .post-container {
-  max-width: 500px;
-  margin: 32px auto;
-  background: #fff;
-  border-radius: 16px;
-  box-shadow: 0 2px 16px #0001;
+  position: relative;
+  height: 100vh; /* chiếm hết chiều cao màn hình */
+  margin: 0;
   padding: 32px 24px;
+  background: #fff;
+  border-radius: 0;
+  box-shadow: none;
   font-family: "Segoe UI", sans-serif;
+  overflow-y: auto;
 }
 
 h2 {
@@ -106,6 +108,8 @@ h2 {
 
 .map-preview {
   margin-bottom: 20px;
+  height: 400px; /* hoặc 100% nếu muốn full chiều cao */
+  width: 100%;
 }
 
 .map-tip {

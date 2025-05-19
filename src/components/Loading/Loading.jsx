@@ -19,7 +19,7 @@ export default function Loading() {
         width: "100vw",
         height: "100vh",
         background: "rgba(0, 0, 0, 0.5)",
-        zIndex: 1,
+        zIndex: 50,
         display: "flex",
         justifyContent: "center",
         alignItems: "center",

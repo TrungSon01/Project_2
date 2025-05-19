@@ -31,32 +31,27 @@ const tailFormItemLayout = {
     sm: { span: 16, offset: 8 },
   },
 };
-let handleRegister = (user, onSuccess) => {
-  console.log("user want register", user);
-  registerService(user)
-    .then((res) => {
-      console.log("register success", res);
-      toast.success("Đăng kí tài khoản thành công");
 
-      if (onSuccess) onSuccess();
-    })
-    .catch((err) => {
-      console.log("register failed", err);
-      toast.error("Đăng kí thất bại, lỗi lỗi lỗi ...");
-    });
-};
 const RegisterForm = ({ onSuccess }) => {
+  const navigate = useNavigate();
+  let handleRegister = (user, onSuccess) => {
+    console.log("user want register", user);
+    registerService(user)
+      .then((res) => {
+        console.log("register success", res);
+        toast.success("Đăng kí tài khoản thành công");
+        navigate("/login");
+        if (onSuccess) onSuccess();
+      })
+      .catch((err) => {
+        console.log("register failed", err);
+        toast.error("Đăng kí thất bại, lỗi lỗi lỗi ...");
+      });
+  };
   const [form] = Form.useForm();
 
   const onFinish = (values) => {
-    const created_at = new Date().toISOString();
-
-    const newValues = {
-      ...values,
-      created_at,
-    };
-
-    handleRegister(newValues, onSuccess);
+    handleRegister(values, onSuccess);
   };
 
   return (
@@ -69,7 +64,7 @@ const RegisterForm = ({ onSuccess }) => {
             form={form}
             name="register"
             onFinish={onFinish}
-            initialValues={{}}
+            initialValues={{ role: false }}
             layout="vertical"
           >
             <Form.Item
@@ -106,6 +101,10 @@ const RegisterForm = ({ onSuccess }) => {
               ]}
             >
               <Input prefix={<PhoneOutlined />} placeholder="Số điện thoại" />
+            </Form.Item>
+
+            <Form.Item name="role" hidden>
+              <Input type="hidden" />
             </Form.Item>
 
             <Form.Item>
