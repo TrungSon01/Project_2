@@ -3,12 +3,14 @@ import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "./HomePage.css";
-import { SlOptionsVertical } from "react-icons/sl";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { setPosts, deletePostById, setLoading } from "../redux/postSlice";
-import { getPosts, deletePost, timeAgo } from "../apis/postFormService";
+import { setPosts, deletePosts, setLoading } from "../redux/postSlice";
+import { getPosts, deletePost, getComments } from "../apis/postFormService";
 import toast from "react-hot-toast";
+import PostItem from "../components/UserPosts/PostItem";
+import { getUserById } from "../apis/userService";
+import PostDetail from "../components/UserPosts/PostDetail";
 
 const customIcon = new L.Icon({
   iconUrl: "https://cdn-icons-png.flaticon.com/512/684/684908.png",
@@ -16,28 +18,46 @@ const customIcon = new L.Icon({
   iconAnchor: [16, 32],
 });
 
-const defaultAvatar = "https://cdn-icons-png.flaticon.com/512/847/847969.png";
-
 export default function HomePage() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { posts, loading } = useSelector((state) => state.postSlice);
   const { user } = useSelector((state) => state.userSlice);
-  const [dropdownOpen, setDropdownOpen] = useState(null);
 
-  // Kiểm tra đăng nhập
+  const [usersMap, setUsersMap] = useState({}); // State để lưu usersMap
+  const [selectedPost, setSelectedPost] = useState(null);
+  const [comments, setComments] = useState([]);
+  const [commentsLoading, setCommentsLoading] = useState(false);
+
   useEffect(() => {
     if (!user) {
       navigate("/login");
     }
   }, [user, navigate]);
 
-  // Gọi API lấy danh sách bài viết
   useEffect(() => {
     if (user) {
       dispatch(setLoading(true));
       getPosts()
-        .then((data) => dispatch(setPosts(data)))
+        .then((data) => {
+          dispatch(setPosts(data));
+
+          // Lấy danh sách user_id duy nhất
+          const uniqueUserIds = [...new Set(data.map((post) => post.user_id))];
+
+          // Gọi API để lấy thông tin từng user
+          Promise.all(
+            uniqueUserIds.map((id) =>
+              getUserById(id).then((res) => ({ id, data: res.data }))
+            )
+          ).then((results) => {
+            const userMap = {};
+            results.forEach(({ id, data }) => {
+              userMap[id] = data;
+            });
+            setUsersMap(userMap); // Lưu vào state
+          });
+        })
         .catch(() => dispatch(setPosts([])))
         .finally(() => dispatch(setLoading(false)));
     }
@@ -47,14 +67,12 @@ export default function HomePage() {
     ? [posts[0].latitude, posts[0].longitude]
     : [21.0, 105.85];
 
-  const handleDropdown = (id) => {
-    setDropdownOpen(dropdownOpen === id ? null : id);
-  };
-
   const handleDelete = async (id) => {
     try {
       await deletePost(id);
-      dispatch(deletePostById(id));
+      dispatch(deletePosts(id));
+      const updatedPosts = await getPosts();
+      dispatch(setPosts(updatedPosts));
       toast.success("Đã xóa bài đăng thành công");
     } catch (error) {
       console.error("Lỗi xóa bài đăng:", error);
@@ -69,6 +87,24 @@ export default function HomePage() {
     });
   };
 
+  const handlePostClick = async (post) => {
+    setSelectedPost(post);
+    setCommentsLoading(true);
+    try {
+      const res = await getComments(post.id || post.post_id);
+      setComments(res);
+    } catch (err) {
+      setComments([]);
+    } finally {
+      setCommentsLoading(false);
+    }
+  };
+
+  const handleCloseDetail = () => {
+    setSelectedPost(null);
+    setComments([]);
+  };
+
   return (
     <div className="homepage">
       <div className="sidebar">
@@ -79,55 +115,15 @@ export default function HomePage() {
             <div>Không có bài đăng nào.</div>
           ) : (
             posts.map((post) => (
-              <div className="post-item" key={post.id}>
-                <div className="post-header">
-                  <div className="post-avatar-block">
-                    <img src={defaultAvatar} alt="avatar" className="avatar" />
-                    <div>
-                      <div className="post-author text-gray-700">
-                        {post.email || "Người dùng"}
-                      </div>
-                      <div className="post-time">
-                        {post.post_time ? timeAgo(post.post_time) : ""}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="post-dropdown-wrapper">
-                    <button
-                      className="post-dropdown-btn"
-                      onClick={() => handleDropdown(post.id)}
-                    >
-                      <SlOptionsVertical size={18} color="gray" />
-                    </button>
-                    {dropdownOpen === post.id && (
-                      <div className="post-dropdown-menu">
-                        <div
-                          className="post-dropdown-item"
-                          onClick={handleEdit}
-                        >
-                          Chỉnh sửa
-                        </div>
-                        {post.email === user?.email && (
-                          <div
-                            className="post-dropdown-item"
-                            onClick={() => handleDelete(post.id)}
-                          >
-                            Xóa
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                </div>
-                <div className="post-desc post-desc-main">
-                  {post.descriptions || post.breed || "Không có mô tả"}
-                </div>
-                <div className="post-image-grid">
-                  <div className="post-image-main">
-                    {post.image ? <img src={post.image} alt="pet" /> : null}
-                  </div>
-                </div>
-              </div>
+              <PostItem
+                key={post.id || post.post_id}
+                post={post}
+                user={user}
+                onDelete={handleDelete}
+                onEdit={handleEdit}
+                userEmail={usersMap[post.user_id]?.email}
+                onClick={handlePostClick}
+              />
             ))
           )}
         </div>
@@ -148,20 +144,28 @@ export default function HomePage() {
               post.latitude &&
               post.longitude && (
                 <Marker
-                  key={post.id}
+                  key={post.user_id}
                   position={[post.latitude, post.longitude]}
                   icon={customIcon}
                 >
                   <Popup>
-                    <b>{post.email}</b>
+                    <b>{post.user_id}</b>
                     <br />
-                    {post.descriptions}
+                    {post.description}
                   </Popup>
                 </Marker>
               )
           )}
         </MapContainer>
       </div>
+      {selectedPost && (
+        <PostDetail
+          post={selectedPost}
+          comments={comments}
+          loading={commentsLoading}
+          onClose={handleCloseDetail}
+        />
+      )}
     </div>
   );
 }

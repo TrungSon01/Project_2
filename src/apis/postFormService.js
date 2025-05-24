@@ -2,7 +2,7 @@ import { https } from "./config";
 
 export const getPosts = async () => {
   try {
-    const response = await https.get("/posts");
+    const response = await https.get("api/posts/");
     return response.data;
   } catch (error) {
     console.error("Error fetching posts:", error);
@@ -12,21 +12,45 @@ export const getPosts = async () => {
 
 export const createPost = async (postData) => {
   try {
-    const response = await https.post("/posts", postData);
+    const response = await https.post("api/posts/", postData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
     return response.data;
   } catch (error) {
-    console.error("Error creating post:", error);
+    console.error("Lỗi chi tiết từ backend:", error.response?.data);
     throw error;
   }
 };
 
 export const deletePost = async (id) => {
   try {
-    const response = await https.delete(`/posts/${id}`);
+    const response = await https.delete(`/api/posts/${id}`);
     return response.data;
   } catch (err) {
     console.log("delete err", err);
-    throw error;
+    throw err;
+  }
+};
+
+export const getComments = async (post_id) => {
+  try {
+    const response = await https.get(`/api/comments/?post_id=${post_id}`);
+    return response.data;
+  } catch (err) {
+    console.error("Error fetching comments:", err);
+    throw err;
+  }
+};
+
+export const createComment = async (data) => {
+  try {
+    const response = await https.post(`/api/comments/`, data);
+    return response.data;
+  } catch (err) {
+    console.error("Error creating comment:", err);
+    throw err;
   }
 };
 
