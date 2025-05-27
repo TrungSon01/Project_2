@@ -3,7 +3,8 @@ import { https } from "./config";
 
 export const loginService = async ({ email, password }) => {
   try {
-    const response = await https.get(`/register`);
+    const response = await https.get(`/api/users/`);
+    console.log("response", response);
     const users = response.data;
 
     const foundUser = users.find(
@@ -23,5 +24,19 @@ export const loginService = async ({ email, password }) => {
 };
 
 export const registerService = (user) => {
-  return https.post(`/register`, user);
+  return https.post(`/api/users/`, user);
+};
+
+export const getUserById = (user_id) => {
+  return https.get(`/api/users/${user_id}`);
+};
+
+// Optional: lấy usersMap trực tiếp
+export const getUsersMap = async () => {
+  const users = await getUsers();
+  const map = {};
+  users.forEach((u) => {
+    map[u.user_id] = u;
+  });
+  return map;
 };

@@ -8,7 +8,7 @@ import Loading from "./components/Loading/Loading";
 import Template from "./template/Template";
 import NotFoundPage from "./components/NotFoundPage/NotFoundPage";
 import PostForm from "./user/PostForm/PostForm"; // thêm dòng này
-import ProfileUser from "./ProfileUser/ProfileUser";
+import ProfileUser from "./components/UserProfile/UserProfile";
 function App() {
   return (
     <div>

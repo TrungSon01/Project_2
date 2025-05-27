@@ -12,7 +12,7 @@ const postSlice = createSlice({
       state.posts = action.payload;
       state.loading = false;
     },
-    deletePost: (state, action) => {
+    deletePosts: (state, action) => {
       state.posts = state.posts.filter((post) => post.id !== action.payload);
     },
     setLoading: (state, action) => {
@@ -21,5 +21,5 @@ const postSlice = createSlice({
   },
 });
 
-export const { setPosts, deletePostById, setLoading } = postSlice.actions;
+export const { setPosts, deletePosts, setLoading } = postSlice.actions;
 export default postSlice.reducer;

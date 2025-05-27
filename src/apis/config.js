@@ -4,7 +4,7 @@ import { hideLoading, showLoading } from "../redux/loadingSlice";
 // axios interceptor
 
 export const https = axios.create({
-  baseURL: "https://681b23bf17018fe5057a3fd7.mockapi.io/login",
+  baseURL: "http://127.0.0.1:8000",
 });
 // Add a request interceptor
 https.interceptors.request.use(

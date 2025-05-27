@@ -12,17 +12,18 @@ function PostForm() {
   const [locationOption, setLocationOption] = useState("current");
   const [coords, setCoords] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
-  const [imageBase64, setImageBase64] = useState("");
+  const [imageFile, setImageFile] = useState(null);
   const [address, setAddress] = useState("");
   const [isSearching, setIsSearching] = useState(false);
   const userAccount = JSON.parse(localStorage.getItem("userAccount") || "{}");
-  const email = userAccount.email || "";
-
+  const user_id = userAccount.user_id || "";
+  const [status, setStatus] = useState(false);
   const [form, setForm] = useState({
-    email: email,
+    user_id: user_id,
+    status: false,
     species: "",
     breed: "",
-    descriptions: "",
+    description: "",
   });
 
   const dispatch = useDispatch();
@@ -38,6 +39,7 @@ function PostForm() {
           address
         )}`
       );
+
       const data = await response.json();
       dispatch(hideLoading());
       if (data && data.length > 0) {
@@ -82,16 +84,21 @@ function PostForm() {
     const file = e.target.files[0];
     if (file) {
       const options = {
-        maxSizeMB: 0.1, // giảm xuống 0.3 MB ~ 300KB
-        maxWidthOrHeight: 200, // giảm kích thước ảnh
+        maxSizeMB: 0.3,
+        maxWidthOrHeight: 500,
         useWebWorker: true,
       };
       try {
         const compressedFile = await imageCompression(file, options);
-        setImagePreview(URL.createObjectURL(compressedFile));
-        const reader = new FileReader();
-        reader.onloadend = () => setImageBase64(reader.result);
-        reader.readAsDataURL(compressedFile);
+
+        // Tạo lại File mới từ Blob nén, giữ tên gốc
+        const renamedFile = new File([compressedFile], file.name, {
+          type: compressedFile.type,
+          lastModified: Date.now(),
+        });
+
+        setImageFile(renamedFile);
+        setImagePreview(URL.createObjectURL(renamedFile));
       } catch (error) {
         alert("Không thể xử lý ảnh.");
       }
@@ -102,34 +109,40 @@ function PostForm() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  // 3. Sửa lại handleSubmit
   const handleSubmit = async () => {
     if (!coords) {
       alert("Vui lòng chọn vị trí!");
       return;
     }
-    if (!form.email || !form.species || !form.breed) {
-      console.log("email", email);
-      alert("Vui lòng nhập đầy đủ thông tin!");
+
+    if (!form.species || !form.breed || !imageFile) {
+      alert("Vui lòng nhập đầy đủ thông tin và chọn ảnh!");
       return;
     }
-    const postData = {
-      email: form.email,
-      species: form.species,
-      breed: form.breed,
-      latitude: coords.latitude,
-      longitude: coords.longitude,
-      image: imageBase64,
-      descriptions: form.descriptions,
-      post_time: Date.now(),
-    };
-    console.log("imageBase64", imageBase64.slice(0, 100));
-    console.log("time", Date.now());
+
+    const formData = new FormData();
+    formData.append("species", form.species);
+    formData.append("breed", form.breed);
+    formData.append("status", form.status);
+    formData.append("description", form.description);
+    formData.append("latitude", coords.latitude);
+    formData.append("longitude", coords.longitude);
+    formData.append("image", imageFile);
+    formData.append("user_id", form.user_id);
+
     try {
       dispatch(showLoading());
-      await createPost(postData);
+      await createPost(formData);
       toast.success("Đã gửi bài thành công!");
-      setForm({ email: "", species: "", breed: "" });
-      setImageBase64("");
+      setForm({
+        user_id,
+        status: false,
+        species: "",
+        breed: "",
+        description: "",
+      });
+      setImageFile(null);
       setImagePreview(null);
       setCoords(null);
     } catch (err) {
@@ -143,21 +156,14 @@ function PostForm() {
     <div className="post-container">
       <h2>Đăng bài</h2>
       <div className="dropdown-group">
+        <input type="email" name="email" value={form.email} hidden readOnly />
         <input
-          type="email"
-          name="email"
-          placeholder="Email"
+          type="text"
+          name="user_id"
+          value={form.user_id}
           hidden
-          value={form.email}
           readOnly
-          style={{
-            padding: 8,
-            borderRadius: 8,
-            border: "1px solid #ccc",
-            backgroundColor: "#f5f5f5",
-          }}
         />
-
         <select
           name="species"
           value={form.species}
@@ -193,9 +199,9 @@ function PostForm() {
         </select>
       </div>
       <textarea
-        name="descriptions"
+        name="description"
         placeholder="Mô tả chi tiết..."
-        value={form.descriptions}
+        value={form.description}
         onChange={handleChange}
         rows={3}
         style={{

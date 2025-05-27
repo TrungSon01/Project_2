@@ -21,8 +21,10 @@ export default function LoginPage() {
           username: user.username,
           email: user.email,
           password: user.password,
+          user_id: user.user_id,
         };
 
+        console.log("userAccount", userAccount.user_id);
         localStorage.setItem("userAccount", JSON.stringify(userAccount));
         navigate("/");
         toast.success("đăng nhập thành công");
