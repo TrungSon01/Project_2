@@ -144,7 +144,7 @@ export default function HomePage() {
               post.latitude &&
               post.longitude && (
                 <Marker
-                  key={post.user_id}
+                  key={post.id || post.post_id}
                   position={[post.latitude, post.longitude]}
                   icon={customIcon}
                 >

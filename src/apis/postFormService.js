@@ -36,7 +36,7 @@ export const deletePost = async (id) => {
 
 export const getComments = async (post_id) => {
   try {
-    const response = await https.get(`/api/comments/?post_id=${post_id}`);
+    const response = await https.get(`/api/posts/${post_id}/comments/`);
     return response.data;
   } catch (err) {
     console.error("Error fetching comments:", err);
@@ -44,9 +44,9 @@ export const getComments = async (post_id) => {
   }
 };
 
-export const createComment = async (data) => {
+export const createComment = async (post_id, data) => {
   try {
-    const response = await https.post(`/api/comments/`, data);
+    const response = await https.post(`/api/posts/${post_id}/comments/`, data);
     return response.data;
   } catch (err) {
     console.error("Error creating comment:", err);
@@ -56,7 +56,11 @@ export const createComment = async (data) => {
 
 // function
 export function timeAgo(ts) {
-  const diff = Math.floor((Date.now() - ts) / 60000);
+  const time = new Date(ts).getTime(); // ✅ Chuyển ISO string → timestamp
+  const now = Date.now();
+  const diff = Math.floor((now - time) / 60000); // phút
+
+  if (diff < 1) return "Vừa xong";
   if (diff < 60) return `${diff} phút trước`;
   if (diff < 1440) return `${Math.floor(diff / 60)} giờ trước`;
   return `${Math.floor(diff / 1440)} ngày trước`;

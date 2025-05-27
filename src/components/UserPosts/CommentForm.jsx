@@ -1,31 +1,31 @@
-// components/Post/CommentForm.jsx
-import React, { useState } from "react";
+import React from "react";
 
-export default function CommentForm({ postId }) {
-  const [text, setText] = useState("");
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (text.trim()) {
-      console.log(`Comment for post ${postId}:`, text);
-      setText("");
-    }
-  };
-
+export default function CommentForm({
+  comment,
+  setComment,
+  sending,
+  handleSend,
+}) {
   return (
-    <form onSubmit={handleSubmit} className="flex items-center gap-2 mt-2">
+    <form
+      onSubmit={handleSend}
+      className="flex items-center gap-2 mt-2"
+      onClick={(e) => e.stopPropagation()}
+    >
       <input
         type="text"
         placeholder="Viết bình luận..."
-        value={text}
-        onChange={(e) => setText(e.target.value)}
+        value={comment}
+        onChange={(e) => setComment(e.target.value)}
+        disabled={sending}
         className="flex-1 border border-gray-300 rounded px-3 py-2 text-black focus:outline-none focus:ring-2 focus:ring-amber-500"
       />
       <button
         type="submit"
+        disabled={sending || !comment.trim()}
         className="bg-amber-500 text-white px-4 py-2 rounded hover:bg-amber-600 transition"
       >
-        Đăng
+        {sending ? "Đang gửi..." : "Đăng"}
       </button>
     </form>
   );

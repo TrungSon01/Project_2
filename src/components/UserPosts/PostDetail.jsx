@@ -2,7 +2,8 @@ import React, { useState } from "react";
 import "./PostDetail.css";
 import { createComment, getComments } from "../../apis/postFormService";
 import { useSelector } from "react-redux";
-
+import CommentForm from "./CommentForm";
+import { timeAgo } from "../../apis/postFormService";
 export default function PostDetail({ post, comments, loading, onClose }) {
   const { user } = useSelector((state) => state.userSlice);
   const [comment, setComment] = useState("");
@@ -19,9 +20,8 @@ export default function PostDetail({ post, comments, loading, onClose }) {
     if (!comment.trim()) return;
     setSending(true);
     try {
-      await createComment({
+      await createComment(post.id || post.post_id, {
         content: comment,
-        post_id: post.id || post.post_id,
         sender_id: user?.user_id,
         receiver_id: post.user_id,
       });
@@ -68,31 +68,30 @@ export default function PostDetail({ post, comments, loading, onClose }) {
           <div>Chưa có bình luận nào.</div>
         ) : (
           <ul className="post-detail-comments">
-            {localComments.map((cmt) => (
-              <li key={cmt.cmt_id} className="post-detail-comment">
+            {localComments.map((cmt, index) => (
+              <li
+                key={`${cmt.cmt_id}-${cmt.created_at}-${index}`}
+                className="post-detail-comment"
+              >
                 <div>
                   <b>Người gửi:</b>{" "}
                   {cmt.sender_email || `User #${cmt.sender_id}`}
                 </div>
                 <div>{cmt.content}</div>
-                <div className="post-detail-comment-time">{cmt.created_at}</div>
+                <div className="post-detail-comment-time">
+                  {timeAgo(cmt.created_at)}
+                </div>
               </li>
             ))}
           </ul>
         )}
         {user && (
-          <form className="post-detail-comment-form" onSubmit={handleSend}>
-            <input
-              type="text"
-              placeholder="Nhập bình luận..."
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
-              disabled={sending}
-            />
-            <button type="submit" disabled={sending || !comment.trim()}>
-              {sending ? "Đang gửi..." : "Gửi"}
-            </button>
-          </form>
+          <CommentForm
+            comment={comment}
+            setComment={setComment}
+            sending={sending}
+            handleSend={handleSend}
+          />
         )}
       </div>
     </div>

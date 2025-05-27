@@ -1,38 +1,69 @@
-import React from "react";
-import { useSelector } from "react-redux";
-import { FaPen } from "react-icons/fa";
+import React, { useEffect, useState } from "react";
 import "./UserProfile.css";
+import { getUserById } from "../../apis/userService";
+
+const defaultAvatar = "https://cdn-icons-png.flaticon.com/512/847/847969.png";
+
 export default function UserProfile() {
-  const user = useSelector((state) => state.userSlice.user); // lấy từ Redux
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  if (!user) return <div>Đang tải hồ sơ...</div>;
+  useEffect(() => {
+    const userAccount = JSON.parse(localStorage.getItem("userAccount") || "{}");
+    const user_id = userAccount.user_id;
+    if (!user_id) {
+      setError("Không tìm thấy user_id. Vui lòng đăng nhập lại.");
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    getUserById(user_id)
+      .then((res) => setUser(res.data))
+      .catch(() => setError("Không thể tải thông tin người dùng."))
+      .finally(() => setLoading(false));
+  }, []);
 
-  const fullName =
-    user.fullname || `${user.firstName || ""} ${user.lastName || ""}`.trim();
+  if (loading) {
+    return (
+      <div className="user-profile-loading">
+        <div className="user-profile-spinner" />
+        Đang tải thông tin người dùng...
+      </div>
+    );
+  }
+  if (error) {
+    return <div className="user-profile-error">{error}</div>;
+  }
+  if (!user) return null;
 
   return (
-    <div className="user-profile">
-      <h2>Hồ sơ của bạn</h2>
-      <div className="avatar-block">
-        <div className="avatar">
-          <span role="img" aria-label="camera">
-            📷
-          </span>
+    <div className="user-profile-bg">
+      <div className="user-profile-card animate-pop">
+        <div className="user-profile-avatar-wrap">
+          <img
+            src={user.avatar || defaultAvatar}
+            alt="avatar"
+            className="user-profile-avatar"
+          />
         </div>
-        <div className="user-id">ID: {user.id}</div>
-        <div className="user-name">
-          {fullName || "Chưa có tên"} <FaPen className="icon" />
+        <h2 className="user-profile-name">{user.username || "Người dùng"}</h2>
+        <div className="user-profile-info">
+          <div>
+            <b>Email:</b> <span>{user.email}</span>
+          </div>
+          <div>
+            <b>Số điện thoại:</b> <span>{user.phone || "Chưa cập nhật"}</span>
+          </div>
+          <div>
+            <b>User ID:</b> <span>{user.user_id}</span>
+          </div>
         </div>
-      </div>
-      <div className="user-info">
-        <div>
-          <b>Email:</b> {user.email} <FaPen className="icon" />
-        </div>
-        <div>
-          <b>Vai trò:</b> {user.role === false ? "Người dùng" : "Quản trị viên"}
-        </div>
-        <div className="change-password">
-          <a href="#">Đổi mật khẩu?</a>
+        <div className="user-profile-actions">
+          <button className="user-profile-btn">Chỉnh sửa</button>
+          <button className="user-profile-btn user-profile-btn-logout">
+            Đăng xuất
+          </button>
         </div>
       </div>
     </div>
