@@ -1,4 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, {
+  useEffect,
+  useState,
+  forwardRef,
+  useImperativeHandle,
+} from "react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -11,14 +16,14 @@ import toast from "react-hot-toast";
 import PostItem from "../components/UserPosts/PostItem";
 import { getUserById } from "../apis/userService";
 import PostDetail from "../components/UserPosts/PostDetail";
-
+import Notification from "../components/Notification/Notification";
 const customIcon = new L.Icon({
   iconUrl: "https://cdn-icons-png.flaticon.com/512/684/684908.png",
   iconSize: [32, 32],
   iconAnchor: [16, 32],
 });
 
-export default function HomePage() {
+const HomePage = forwardRef(function HomePage(props, ref) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { posts, loading } = useSelector((state) => state.postSlice);
@@ -105,6 +110,34 @@ export default function HomePage() {
     setComments([]);
   };
 
+  const userAccount = JSON.parse(localStorage.getItem("userAccount") || "{}");
+  const user_id = userAccount.user_id;
+
+  // Expose openPostDetailById to parent via ref
+  useImperativeHandle(ref, () => ({
+    openPostDetailById: async (post_id) => {
+      const post = posts.find(
+        (p) =>
+          p.id === post_id ||
+          p.post_id === post_id ||
+          String(p.id) === String(post_id) ||
+          String(p.post_id) === String(post_id)
+      );
+      if (post) {
+        setSelectedPost(post);
+        setCommentsLoading(true);
+        try {
+          const res = await getComments(post.id || post.post_id);
+          setComments(res);
+        } catch (err) {
+          setComments([]);
+        } finally {
+          setCommentsLoading(false);
+        }
+      }
+    },
+  }));
+
   return (
     <div className="homepage">
       <div className="sidebar">
@@ -168,4 +201,6 @@ export default function HomePage() {
       )}
     </div>
   );
-}
+});
+
+export default HomePage;

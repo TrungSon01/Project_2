@@ -9,14 +9,34 @@ import Template from "./template/Template";
 import NotFoundPage from "./components/NotFoundPage/NotFoundPage";
 import PostForm from "./user/PostForm/PostForm"; // thêm dòng này
 import ProfileUser from "./components/UserProfile/UserProfile";
+import React, { useRef } from "react";
+import Notification from "./components/Notification/Notification";
+
 function App() {
+  const homePageRef = useRef();
+
+  // Handler to open post detail from notification
+  const handleNotificationPostClick = (post_id) => {
+    if (homePageRef.current && homePageRef.current.openPostDetailById) {
+      homePageRef.current.openPostDetailById(post_id);
+    }
+  };
+
   return (
     <div>
       <Loading />
       <BrowserRouter>
         <Toaster />
         <Routes>
-          <Route path="/" element={<Template content={<HomePage />} />} />
+          <Route
+            path="/"
+            element={
+              <Template
+                content={<HomePage ref={homePageRef} />}
+                onNotificationPostClick={handleNotificationPostClick}
+              />
+            }
+          />
           <Route
             path="/create-post"
             element={<Template content={<PostForm />} />}
@@ -27,6 +47,7 @@ function App() {
           />
           <Route path="/login" element={<LoginForm />} />
           <Route path="/register" element={<RegisterForm />} />
+          <Route path="/notic" element={<Notification />} />
           <Route path="/*" element={<NotFoundPage />} />
         </Routes>
       </BrowserRouter>
