@@ -3,7 +3,7 @@ import { createPortal } from "react-dom";
 import { getNotifications } from "../../apis/notificationService";
 import { FaBell } from "react-icons/fa";
 import "./Notification.css";
-
+import { timeAgo } from "../../apis/postFormService";
 // Notification component: Hiển thị thông báo khi click chuông, dropdown xuất hiện bên phải chuông (dùng Portal)
 export default function Notification({ onNotificationClick }) {
   const [open, setOpen] = useState(false);
@@ -142,7 +142,9 @@ export default function Notification({ onNotificationClick }) {
                     onClick={() => handleNotificationClick(n.post_id)}
                   >
                     <div className="notification-content">{n.message}</div>
-                    <div className="notification-time">{n.created_at}</div>
+                    <div className="notification-time">
+                      {timeAgo(n.created_at)}
+                    </div>
                   </li>
                 ))}
               </ul>

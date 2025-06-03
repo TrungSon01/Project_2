@@ -34,8 +34,10 @@ const CenterSection = styled.div`
   flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
+  gap: 2px; /* khoảng cách giữa các icon */
+  margin-top: 1px; /* thêm khoảng cách với TopSection nếu cần */
 `;
 
 const Navbar = ({ onCreatePost, onNotificationPostClick }) => {

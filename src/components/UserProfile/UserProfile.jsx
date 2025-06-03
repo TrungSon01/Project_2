@@ -1,14 +1,20 @@
 import React, { useEffect, useState } from "react";
 import "./UserProfile.css";
 import { getUserById } from "../../apis/userService";
-
+import { useSelector, useDispatch } from "react-redux";
 const defaultAvatar = "https://cdn-icons-png.flaticon.com/512/847/847969.png";
+import { logoutUser } from "../../redux/userSlice";
+import { useNavigate } from "react-router-dom";
+import UserChangePassword from "./UserChangePassword"; // Cập nhật đúng đường dẫn
 
 export default function UserProfile() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
 
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   useEffect(() => {
     const userAccount = JSON.parse(localStorage.getItem("userAccount") || "{}");
     const user_id = userAccount.user_id;
@@ -25,20 +31,22 @@ export default function UserProfile() {
   }, []);
 
   if (loading) {
-    return (
-      <div className="user-profile-loading">
-        <div className="user-profile-spinner" />
-        Đang tải thông tin người dùng...
-      </div>
-    );
   }
   if (error) {
     return <div className="user-profile-error">{error}</div>;
   }
   if (!user) return null;
-
+  const handleLogout = () => {
+    dispatch(logoutUser());
+    localStorage.removeItem("userAccount");
+    navigate("/login"); // chuyển về trang login
+  };
   return (
     <div className="user-profile-bg">
+      {showChangePasswordModal && (
+        <UserChangePassword onClose={() => setShowChangePasswordModal(false)} />
+      )}
+
       <div className="user-profile-card animate-pop">
         <div className="user-profile-avatar-wrap">
           <img
@@ -60,9 +68,17 @@ export default function UserProfile() {
           </div>
         </div>
         <div className="user-profile-actions">
-          <button className="user-profile-btn">Chỉnh sửa</button>
-          <button className="user-profile-btn user-profile-btn-logout">
+          <button
+            className="user-profile-btn user-profile-btn-logout"
+            onClick={handleLogout}
+          >
             Đăng xuất
+          </button>
+          <button
+            className="user-profile-btn"
+            onClick={() => setShowChangePasswordModal(true)}
+          >
+            Đổi mật khẩu
           </button>
         </div>
       </div>

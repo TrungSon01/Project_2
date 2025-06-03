@@ -10,7 +10,7 @@
   position: relative;
   padding: 8px;
   border-radius: 50%;
-  transition: background 0.15s;
+  transition: background 0.4s;
 }
 
 .notification-bell:hover {

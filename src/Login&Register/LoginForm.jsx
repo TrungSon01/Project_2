@@ -22,6 +22,7 @@ export default function LoginPage() {
           email: user.email,
           password: user.password,
           user_id: user.user_id,
+          phone: user.phone,
         };
 
         console.log("userAccount", userAccount.user_id);
@@ -31,7 +32,7 @@ export default function LoginPage() {
       })
       .catch((err) => {
         console.error("Lỗi khi đăng nhập:", err);
-        toast.error("đăng nhập thất bại");
+        toast.error("đăng nhập thất bại", err);
       });
   };
 
