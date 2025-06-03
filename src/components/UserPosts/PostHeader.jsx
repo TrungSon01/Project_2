@@ -5,6 +5,7 @@ import { SlOptionsVertical } from "react-icons/sl";
 const defaultAvatar =
   "https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg";
 import { timeAgo } from "../../apis/postFormService";
+import PostDetail from "./PostDetail";
 
 export default function PostHeader({
   post,
@@ -55,6 +56,7 @@ export default function PostHeader({
                 Xóa
               </div>
             )}
+            <div className="post-dropdown-item">Chi tiết</div>
           </div>
         )}
       </div>

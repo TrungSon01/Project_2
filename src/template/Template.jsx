@@ -1,10 +1,15 @@
 import React from "react";
 import Navbar from "../components/Navbar/Navbar";
 
-export default function Template({ content }) {
+export default function Template({ content, onNotificationPostClick }) {
+  // If content is a HomePage, clone and inject the prop
+  const contentWithProps =
+    React.isValidElement(content) && content.type.name === "HomePage"
+      ? React.cloneElement(content, { onNotificationPostClick })
+      : content;
   return (
     <div>
-      <Navbar />
+      <Navbar onNotificationPostClick={onNotificationPostClick} />
       <div
         style={{
           marginLeft: "80px",
@@ -12,7 +17,7 @@ export default function Template({ content }) {
           overflow: "hidden",
         }}
       >
-        {content}
+        {contentWithProps}
       </div>
     </div>
   );

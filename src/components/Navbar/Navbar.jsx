@@ -1,16 +1,10 @@
 import React from "react";
-import {
-  FaSearch,
-  FaMapMarkerAlt,
-  FaPlus,
-  FaBell,
-  FaBookmark,
-} from "react-icons/fa";
+import { FaSearch, FaMapMarkerAlt, FaPlus, FaBookmark } from "react-icons/fa";
 import styled from "styled-components";
 import UserMenu from "../UserMenu/UserMenu";
 import { FaHouseChimney } from "react-icons/fa6";
 import { useNavigate } from "react-router";
-import HomePage from "../../HomePage/HomePage";
+import Notification from "../Notification/Notification";
 const NavbarContainer = styled.div`
   position: fixed;
   height: 100vh;
@@ -40,11 +34,13 @@ const CenterSection = styled.div`
   flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
+  gap: 2px; /* khoảng cách giữa các icon */
+  margin-top: 1px; /* thêm khoảng cách với TopSection nếu cần */
 `;
 
-const Navbar = ({ onCreatePost }) => {
+const Navbar = ({ onCreatePost, onNotificationPostClick }) => {
   const navigate = useNavigate();
 
   return (
@@ -67,7 +63,7 @@ const Navbar = ({ onCreatePost }) => {
           <FaPlus />
         </IconButton>
         <IconButton>
-          <FaBell />
+          <Notification onNotificationClick={onNotificationPostClick} />
         </IconButton>
         <IconButton>
           <FaBookmark />

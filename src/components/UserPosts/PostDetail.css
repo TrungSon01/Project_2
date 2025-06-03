@@ -5,7 +5,7 @@
   width: 100vw;
   height: 100vh;
   background: rgba(0, 0, 0, 0.4);
-  z-index: 2000;
+  z-index: 1;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -32,7 +32,7 @@
   font-size: 2rem;
   color: #888;
   cursor: pointer;
-  z-index: 10;
+  z-index: 1;
 }
 
 .post-detail-main {
