@@ -53,15 +53,35 @@
   z-index: 0;
   background: #fff;
 }
+.post-list::-webkit-scrollbar {
+  width: 6px; /* Độ rộng của thanh cuộn */
+}
+
+.post-list::-webkit-scrollbar-thumb {
+  background: #ccc; /* Màu của phần cuộn */
+  border-radius: 4px; /* Bo góc */
+}
+
+.post-list::-webkit-scrollbar-track {
+  background: transparent; /* Nền rãnh */
+}
 
 .post-item {
   margin-bottom: 32px;
   border-bottom: 1px solid #eee;
-  padding-bottom: 16px;
+  padding: 16px;
   display: flex;
   flex-direction: column;
   gap: 8px;
   position: relative;
+  background: #fff;
+  border-radius: 12px;
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+.post-item:hover {
+  background: #f9f9f9;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
 }
 
 .post-header {

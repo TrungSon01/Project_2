@@ -3,7 +3,11 @@ import React, { useState } from "react";
 import PostHeader from "./PostHeader";
 import PostContent from "./PostContent";
 import PostActions from "./PostActions";
-import { createComment, getComments } from "../../apis/postFormService";
+import {
+  createComment,
+  getComments,
+  savePost,
+} from "../../apis/postFormService";
 import { useSelector } from "react-redux";
 import { useRef } from "react";
 import CommentsList from "./CommentsList";
@@ -72,6 +76,7 @@ export default function PostItem({
         onDelete={onDelete}
         onEdit={onEdit}
         userEmail={userEmail}
+        onSavePost={savePost}
       />
       <PostContent post={post} />
       <PostActions post={post} />
