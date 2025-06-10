@@ -1,19 +1,18 @@
 import React, { useState } from "react";
 import "./UserChangePassword.css"; // Tạo file CSS riêng cho modal
 import axios from "axios";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { https } from "../../apis/config";
 import toast from "react-hot-toast";
 import Input from "../Input/Input";
-import { useEffect, useRef } from "react";
-
+import { logoutUser } from "../../redux/userSlice";
 export default function UserChangePassword({ onClose }) {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [show, setShow] = useState(false);
-
+  const dispatch = useDispatch();
   const user = useSelector((state) => state.userSlice.user);
 
   const handleChangePassword = async () => {
@@ -40,6 +39,9 @@ export default function UserChangePassword({ onClose }) {
       });
       setNewPassword("");
       setConfirmPassword("");
+      dispatch(logoutUser());
+      localStorage.removeItem("userAccount");
+      navigate("/login");
       toast.success("Đổi mật khẩu thành công");
     } catch (err) {
       toast.error("Có lỗi xảy ra khi đổi mật khẩu.");

@@ -29,17 +29,6 @@ export default function UserMenu() {
     navigate("/login");
   };
 
-  // ...(user?.maLoaiNguoiDung === "QuanTri"
-  //   ? [
-  //       {
-  //         key: "2",
-  //         label: (
-  //           <span onClick={() => navigate("/admin")}>Trang quản lý</span>
-  //         ),
-  //       },
-  //     ]
-  //   : []),
-
   const items = [
     {
       key: "1",
@@ -53,7 +42,7 @@ export default function UserMenu() {
       type: "divider",
     },
     {
-      key: "3",
+      key: "2",
       label: (
         <span
           className="dropdown-item"
@@ -67,13 +56,34 @@ export default function UserMenu() {
     {
       type: "divider",
     },
+
+    {
+      key: "3",
+      label: (
+        <span
+          className="dropdown-item"
+          onClick={() =>
+            (window.location.href =
+              "http://127.0.0.1:8000/admin/login/?next=/admin/")
+          }
+          style={{ animationDelay: "0.4s" }}
+        >
+          Trang quản lý
+        </span>
+      ),
+    },
+
+    {
+      type: "divider",
+    },
+
     {
       key: "4",
       label: (
         <span
           className="dropdown-item"
           onClick={handleLogout}
-          style={{ animationDelay: "0.4s" }}
+          style={{ animationDelay: "0.55s" }}
         >
           Đăng xuất
         </span>

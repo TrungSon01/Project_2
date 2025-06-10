@@ -1,6 +1,7 @@
 // components/Post/PostHeader.jsx
 import React, { useState } from "react";
 import { SlOptionsVertical } from "react-icons/sl";
+import { useSelector } from "react-redux";
 
 const defaultAvatar =
   "https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg";
@@ -9,12 +10,13 @@ import PostDetail from "./PostDetail";
 
 export default function PostHeader({
   post,
-  user,
   userEmail,
   onDelete,
   onEdit,
+  onSavePost,
 }) {
   const [open, setOpen] = useState(false);
+  const { user: currentUser } = useSelector((state) => state.userSlice);
 
   return (
     <div className="post-header">
@@ -32,10 +34,13 @@ export default function PostHeader({
         />
         <div>
           <div className="post-author text-gray-700">
-            {userEmail || `Người dùng #${post.user_id}`}
+            {post?.author_email ||
+              post?.author_name ||
+              userEmail ||
+              `Người dùng #${post?.user_id}`}
           </div>
           <div className="post-time">
-            {post.post_time ? timeAgo(post.post_time) : ""}
+            {post?.post_time ? timeAgo(post.post_time) : ""}
           </div>
         </div>
       </div>
@@ -48,7 +53,7 @@ export default function PostHeader({
             <div className="post-dropdown-item" onClick={onEdit}>
               Chỉnh sửa
             </div>
-            {post.user_id === user?.user_id && (
+            {post.user_id === currentUser?.user_id && (
               <div
                 className="post-dropdown-item"
                 onClick={() => onDelete(post.post_id)}
@@ -57,6 +62,21 @@ export default function PostHeader({
               </div>
             )}
             <div className="post-dropdown-item">Chi tiết</div>
+            <div
+              className="post-dropdown-item"
+              onClick={async (e) => {
+                e.stopPropagation(); // Prevent the post item click from being triggered
+                setOpen(false); // Close the dropdown after clicking
+                try {
+                  const response = await onSavePost(post.id || post.post_id);
+                  alert(response.message || "Bài viết đã được lưu thành công!");
+                } catch (error) {
+                  alert("Lỗi khi lưu bài viết.");
+                }
+              }}
+            >
+              Lưu bài viết
+            </div>
           </div>
         )}
       </div>

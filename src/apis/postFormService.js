@@ -54,6 +54,38 @@ export const createComment = async (post_id, data) => {
   }
 };
 
+export const savePost = async (postId) => {
+  try {
+    const userAccount = JSON.parse(localStorage.getItem("userAccount"));
+    const userId = userAccount ? userAccount.user_id : null;
+
+    if (!userId) {
+      throw new Error("User ID not found in local storage.");
+    }
+
+    const payload = {
+      user_id: userId,
+      post_id: postId,
+    };
+
+    const response = await https.post(`/api/posts/${postId}/save/`, payload);
+    return response.data;
+  } catch (error) {
+    console.error("Error saving post:", error);
+    throw error;
+  }
+};
+
+export const getSavedPosts = async (userId) => {
+  try {
+    const response = await https.get(`/api/users/${userId}/save/posts/`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching saved posts:", error);
+    throw error;
+  }
+};
+
 // function
 export function timeAgo(ts) {
   const time = new Date(ts).getTime(); // ✅ Chuyển ISO string → timestamp

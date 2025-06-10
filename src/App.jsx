@@ -7,8 +7,9 @@ import RegisterForm from "./Login&Register/RegisterForm";
 import Loading from "./components/Loading/Loading";
 import Template from "./template/Template";
 import NotFoundPage from "./components/NotFoundPage/NotFoundPage";
-import PostForm from "./user/PostForm/PostForm"; // thêm dòng này
+import PostForm from "./user/PostForm/PostForm";
 import ProfileUser from "./components/UserProfile/UserProfile";
+import SavedPostsPage from "./user/SavedPostsPage/SavedPostsPage";
 import React, { useRef } from "react";
 import Notification from "./components/Notification/Notification";
 
@@ -44,6 +45,10 @@ function App() {
           <Route
             path="/profile"
             element={<Template content={<ProfileUser />} />}
+          />
+          <Route
+            path="/saved-posts"
+            element={<Template content={<SavedPostsPage />} />}
           />
           <Route path="/login" element={<LoginForm />} />
           <Route path="/register" element={<RegisterForm />} />

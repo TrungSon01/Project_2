@@ -65,7 +65,7 @@ const Navbar = ({ onCreatePost, onNotificationPostClick }) => {
         <IconButton>
           <Notification onNotificationClick={onNotificationPostClick} />
         </IconButton>
-        <IconButton>
+        <IconButton onClick={() => navigate("/saved-posts")}>
           <FaBookmark />
         </IconButton>
       </CenterSection>
