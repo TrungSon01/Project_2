@@ -13,8 +13,9 @@ export default function Notification({ onNotificationClick }) {
   const closeTimer = useRef(null);
   const bellRef = useRef(null);
   const [dropdownPos, setDropdownPos] = useState({ top: 0, left: 0 });
+  const ws = useRef(null); // Ref for WebSocket connection
 
-  // Lấy danh sách thông báo từ backend
+  // Lấy danh sách thông báo từ backend (sẽ được gọi khi mở chuông hoặc khởi tạo)
   const fetchNotifications = async () => {
     const userAccount = JSON.parse(localStorage.getItem("userAccount") || "{}");
     const user_id = userAccount.user_id;
@@ -92,6 +93,61 @@ export default function Notification({ onNotificationClick }) {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [open]);
+
+  // Kết nối WebSocket khi component mount hoặc user_id thay đổi
+  useEffect(() => {
+    const userAccount = JSON.parse(localStorage.getItem("userAccount") || "{}");
+    const user_id = userAccount.user_id;
+
+    if (!user_id) return;
+
+    // Đảm bảo chỉ có một kết nối WebSocket tại một thời điểm
+    if (ws.current) {
+      ws.current.close();
+    }
+
+    // Thay đổi URL nếu cần, ví dụ: sử dụng process.env.REACT_APP_WEBSOCKET_URL
+    // Mặc định, Channels chạy trên cùng cổng với Django dev server
+    // Nếu bạn đang chạy frontend và backend trên các cổng khác nhau, bạn cần cấu hình rõ ràng
+    // Ví dụ: `ws://localhost:8000/ws/notifications/${user_id}/`
+    ws.current = new WebSocket(
+      `ws://localhost:8000/ws/notifications/${user_id}/`
+    );
+
+    ws.current.onopen = () => {
+      console.log("WebSocket Connected");
+      fetchNotifications(); // Fetch notifications on successful connection
+    };
+
+    ws.current.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      console.log("Received WebSocket message:", data);
+      // Giả sử data có cấu trúc { type: "notification", message: { ... } }
+      if (data.type === "notification_message") {
+        setNotifications((prevNotifications) => {
+          // Thêm thông báo mới lên đầu danh sách
+          const newNotifications = [data.message, ...prevNotifications];
+          return newNotifications;
+        });
+        setUnread((prevUnread) => prevUnread + 1); // Tăng số thông báo chưa đọc
+      }
+    };
+
+    ws.current.onclose = () => {
+      console.log("WebSocket Disconnected");
+    };
+
+    ws.current.onerror = (error) => {
+      console.error("WebSocket Error:", error);
+    };
+
+    // Clean up function: Close WebSocket connection when component unmounts
+    return () => {
+      if (ws.current) {
+        ws.current.close();
+      }
+    };
+  }, []); // Dependency array: Re-run when user_id changes, or once on mount
 
   // Tạo node portal nếu chưa có
   useEffect(() => {
