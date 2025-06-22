@@ -1,7 +1,11 @@
 import React from "react";
 import Navbar from "../components/Navbar/Navbar";
 
-export default function Template({ content, onNotificationPostClick }) {
+export default function Template({
+  content,
+  onNotificationPostClick,
+  onSearch,
+}) {
   // If content is a HomePage, clone and inject the prop
   const contentWithProps =
     React.isValidElement(content) && content.type.name === "HomePage"
@@ -9,7 +13,10 @@ export default function Template({ content, onNotificationPostClick }) {
       : content;
   return (
     <div>
-      <Navbar onNotificationPostClick={onNotificationPostClick} />
+      <Navbar
+        onNotificationPostClick={onNotificationPostClick}
+        onSearch={onSearch}
+      />
       <div
         style={{
           marginLeft: "80px",
