@@ -24,6 +24,7 @@ function PostForm() {
     species: "",
     breed: "",
     description: "",
+    like_count: 0,
   });
 
   const dispatch = useDispatch();
@@ -130,6 +131,7 @@ function PostForm() {
     formData.append("longitude", coords.longitude);
     formData.append("image", imageFile);
     formData.append("user_id", form.user_id);
+    formData.append("like_count", 0);
 
     try {
       dispatch(showLoading());

@@ -1,5 +1,5 @@
 import { https } from "./config";
-
+import { getUserById } from "./userService";
 export const getPosts = async () => {
   try {
     const response = await https.get("api/posts/");
@@ -67,7 +67,7 @@ export const savePost = async (postId) => {
       user_id: userId,
       post_id: postId,
     };
-
+    
     const response = await https.post(`/api/posts/${postId}/save/`, payload);
     return response.data;
   } catch (error) {
@@ -79,11 +79,18 @@ export const savePost = async (postId) => {
 export const getSavedPosts = async (userId) => {
   try {
     const response = await https.get(`/api/users/${userId}/save/posts/`);
+    
     return response.data;
+
   } catch (error) {
     console.error("Error fetching saved posts:", error);
     throw error;
   }
+};
+
+export const searchPosts = (query) => {
+  const searchQuery = query.replace(/ /g, "+");
+  return https.get(`/api/posts/?search=${searchQuery}`);
 };
 
 // function

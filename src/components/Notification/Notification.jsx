@@ -4,6 +4,10 @@ import { getNotifications } from "../../apis/notificationService";
 import { FaBell } from "react-icons/fa";
 import "./Notification.css";
 import { timeAgo } from "../../apis/postFormService";
+import { notification } from "antd";
+import toast from "react-hot-toast";
+import { BellOutlined } from "@ant-design/icons";
+
 // Notification component: Hiển thị thông báo khi click chuông, dropdown xuất hiện bên phải chuông (dùng Portal)
 export default function Notification({ onNotificationClick }) {
   const [open, setOpen] = useState(false);
@@ -12,6 +16,8 @@ export default function Notification({ onNotificationClick }) {
   const [loading, setLoading] = useState(false);
   const closeTimer = useRef(null);
   const bellRef = useRef(null);
+const [api, contextHolder] = notification.useNotification();
+
   const [dropdownPos, setDropdownPos] = useState({ top: 0, left: 0 });
   const ws = useRef(null); // Ref for WebSocket connection
 
@@ -94,35 +100,33 @@ export default function Notification({ onNotificationClick }) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [open]);
 
-  // Kết nối WebSocket khi component mount hoặc user_id thay đổi
+  // Kết nối WebSocket 
   useEffect(() => {
     const userAccount = JSON.parse(localStorage.getItem("userAccount") || "{}");
     const user_id = userAccount.user_id;
 
     if (!user_id) return;
 
-    // Đảm bảo chỉ có một kết nối WebSocket tại một thời điểm
+    
     if (ws.current) {
       ws.current.close();
     }
 
-    // Thay đổi URL nếu cần, ví dụ: sử dụng process.env.REACT_APP_WEBSOCKET_URL
-    // Mặc định, Channels chạy trên cùng cổng với Django dev server
-    // Nếu bạn đang chạy frontend và backend trên các cổng khác nhau, bạn cần cấu hình rõ ràng
-    // Ví dụ: `ws://localhost:8000/ws/notifications/${user_id}/`
+    
     ws.current = new WebSocket(
       `ws://localhost:8000/ws/notifications/${user_id}/`
     );
 
     ws.current.onopen = () => {
       console.log("WebSocket Connected");
+     
       fetchNotifications(); // Fetch notifications on successful connection
     };
 
     ws.current.onmessage = (event) => {
       const data = JSON.parse(event.data);
       console.log("Received WebSocket message:", data);
-      // Giả sử data có cấu trúc { type: "notification", message: { ... } }
+     
       if (data.type === "notification_message") {
         setNotifications((prevNotifications) => {
           // Thêm thông báo mới lên đầu danh sách
@@ -131,6 +135,33 @@ export default function Notification({ onNotificationClick }) {
         });
         setUnread((prevUnread) => prevUnread + 1); // Tăng số thông báo chưa đọc
       }
+     toast.success("bạn có thông báo mới");
+api.open({
+  message: (
+    <span className="text-white font-semibold flex items-center gap-2">
+      <BellOutlined className="text-yellow-400" />
+      Thông báo mới từ hệ thống
+    </span>
+  ),
+  description: (
+    <div className="text-gray-200">
+      {data.message.message || "Bạn có thông báo mới"}
+    </div>
+  ),
+  placement: "topRight",
+  duration: 6,
+  style: {
+    backgroundColor: "#374151", 
+    border: "1px solid #4b5563", 
+    boxShadow: "0 12px 24px rgba(0, 0, 0, 0.5)", 
+    borderRadius: "0.75rem", 
+    cursor: "pointer",
+    color: "white",
+  },
+  onClick: () => handleNotificationClick(data.message.post_id),
+});
+       
+
     };
 
     ws.current.onclose = () => {
@@ -160,6 +191,8 @@ export default function Notification({ onNotificationClick }) {
   }, []);
 
   return (
+    <>
+     {contextHolder}
     <div className="notification-wrap">
       <button
         className="notification-bell"
@@ -208,6 +241,9 @@ export default function Notification({ onNotificationClick }) {
           </div>,
           document.getElementById("notification-portal")
         )}
+    
+
     </div>
+    </>
   );
 }

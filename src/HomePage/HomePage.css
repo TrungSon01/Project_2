@@ -206,3 +206,19 @@
 .ant-notification {
   z-index: 2000 !important;
 }
+
+.post-detail-button {
+  background: #FE9A00;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  margin-top: 10px;
+  margin-left: 10px;
+}
+.post-detail-button:hover {
+  background: rgba(225,113,0);
+
+}

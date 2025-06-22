@@ -2,11 +2,12 @@
 import React, { useState } from "react";
 import { SlOptionsVertical } from "react-icons/sl";
 import { useSelector } from "react-redux";
-
+import { useEffect } from "react";
 const defaultAvatar =
   "https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg";
 import { timeAgo } from "../../apis/postFormService";
 import PostDetail from "./PostDetail";
+import { getUserById } from "../../apis/userService";
 
 export default function PostHeader({
   post,
@@ -17,6 +18,19 @@ export default function PostHeader({
 }) {
   const [open, setOpen] = useState(false);
   const { user: currentUser } = useSelector((state) => state.userSlice);
+const[username, setUsername] = useState("");
+ useEffect(() => {
+    if (post?.user_id) {
+      getUserById(post.user_id)
+        .then((res) => {
+          setUsername(res.username); 
+        })
+        .catch((err) => {
+          console.error("Lỗi khi lấy username:", err);
+        });
+    }
+  }, [post?.user_id]);
+
 
   return (
     <div className="post-header">
@@ -34,7 +48,7 @@ export default function PostHeader({
         />
         <div>
           <div className="post-author text-gray-700">
-            {post?.author_email ||
+            {post?.username ||
               post?.author_name ||
               userEmail ||
               `Người dùng #${post?.user_id}`}

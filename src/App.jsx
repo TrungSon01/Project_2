@@ -12,9 +12,15 @@ import ProfileUser from "./components/UserProfile/UserProfile";
 import SavedPostsPage from "./user/SavedPostsPage/SavedPostsPage";
 import React, { useRef } from "react";
 import Notification from "./components/Notification/Notification";
-
+import SearchPage from "./user/SearchPage/SearchPage";
 function App() {
   const homePageRef = useRef();
+
+  const handleSearch = (query) => {
+    if (homePageRef.current && homePageRef.current.handleSearch) {
+      homePageRef.current.handleSearch(query);
+    }
+  };
 
   // Handler to open post detail from notification
   const handleNotificationPostClick = (post_id) => {
@@ -35,6 +41,7 @@ function App() {
               <Template
                 content={<HomePage ref={homePageRef} />}
                 onNotificationPostClick={handleNotificationPostClick}
+                onSearch={handleSearch}
               />
             }
           />
@@ -50,6 +57,7 @@ function App() {
             path="/saved-posts"
             element={<Template content={<SavedPostsPage />} />}
           />
+          <Route path="/search" element={<Template content={<SearchPage />} />} />
           <Route path="/login" element={<LoginForm />} />
           <Route path="/register" element={<RegisterForm />} />
           <Route path="/notic" element={<Notification />} />

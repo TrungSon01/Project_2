@@ -11,7 +11,7 @@ import "./HomePage.css";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { setPosts, deletePosts, setLoading } from "../redux/postSlice";
-import { getPosts, deletePost, getComments } from "../apis/postFormService";
+import { getPosts, deletePost, getComments, searchPosts } from "../apis/postFormService";
 import toast from "react-hot-toast";
 import PostItem from "../components/UserPosts/PostItem";
 import { getUserById } from "../apis/userService";
@@ -33,40 +33,61 @@ const HomePage = forwardRef(function HomePage(props, ref) {
   const [selectedPost, setSelectedPost] = useState(null);
   const [comments, setComments] = useState([]);
   const [commentsLoading, setCommentsLoading] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
+
+  const fetchPosts = () => {
+    dispatch(setLoading(true));
+    getPosts()
+      .then((data) => {
+        dispatch(setPosts(data));
+        const uniqueUserIds = [...new Set(data.map((post) => post.user_id))];
+        Promise.all(
+          uniqueUserIds.map((id) =>
+            getUserById(id).then((res) => ({ id, data: res.data }))
+          )
+        ).then((results) => {
+          const userMap = {};
+          results.forEach(({ id, data }) => {
+            userMap[id] = data;
+          });
+          setUsersMap(userMap);
+        });
+      })
+      .catch(() => dispatch(setPosts([])))
+      .finally(() => dispatch(setLoading(false)));
+  };
+
+  useEffect(() => {
+    if (user && !isSearching) {
+      fetchPosts();
+    }
+  }, [dispatch, user, isSearching]);
+
+  const handleSearch = async (query) => {
+    if (!query) {
+      setIsSearching(false);
+      // Khi query rỗng, fetch lại tất cả bài post
+      fetchPosts();
+      return;
+    }
+    setIsSearching(true);
+    dispatch(setLoading(true));
+    try {
+      const { data } = await searchPosts(query);
+      dispatch(setPosts(data));
+    } catch (error) {
+      toast.error("Không tìm thấy kết quả nào.");
+      dispatch(setPosts([]));
+    } finally {
+      dispatch(setLoading(false));
+    }
+  };
 
   useEffect(() => {
     if (!user) {
       navigate("/login");
     }
   }, [user, navigate]);
-
-  useEffect(() => {
-    if (user) {
-      dispatch(setLoading(true));
-      getPosts()
-        .then((data) => {
-          dispatch(setPosts(data));
-
-          // Lấy danh sách user_id duy nhất
-          const uniqueUserIds = [...new Set(data.map((post) => post.user_id))];
-
-          // Gọi API để lấy thông tin từng user
-          Promise.all(
-            uniqueUserIds.map((id) =>
-              getUserById(id).then((res) => ({ id, data: res.data }))
-            )
-          ).then((results) => {
-            const userMap = {};
-            results.forEach(({ id, data }) => {
-              userMap[id] = data;
-            });
-            setUsersMap(userMap); // Lưu vào state
-          });
-        })
-        .catch(() => dispatch(setPosts([])))
-        .finally(() => dispatch(setLoading(false)));
-    }
-  }, [dispatch, user]);
 
   const center = posts.length
     ? [posts[0].latitude, posts[0].longitude]
@@ -113,7 +134,6 @@ const HomePage = forwardRef(function HomePage(props, ref) {
   const userAccount = JSON.parse(localStorage.getItem("userAccount") || "{}");
   const user_id = userAccount.user_id;
 
-  // Expose openPostDetailById to parent via ref
   useImperativeHandle(ref, () => ({
     openPostDetailById: async (post_id) => {
       const post = posts.find(
@@ -136,6 +156,7 @@ const HomePage = forwardRef(function HomePage(props, ref) {
         }
       }
     },
+    handleSearch,
   }));
 
   return (
@@ -181,10 +202,12 @@ const HomePage = forwardRef(function HomePage(props, ref) {
                   position={[post.latitude, post.longitude]}
                   icon={customIcon}
                 >
-                  <Popup>
+                  <Popup >
                     <b>{post.user_id}</b>
                     <br />
                     {post.description}
+                    <br />
+                    <button className="post-detail-button" onClick={() => handlePostClick(post)}>Xem chi tiết</button>
                   </Popup>
                 </Marker>
               )
