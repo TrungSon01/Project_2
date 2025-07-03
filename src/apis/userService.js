@@ -4,7 +4,7 @@ import { https } from "./config";
 export const loginService = async ({ email, password }) => {
   try {
     const response = await https.get(`/api/users/`);
-    console.log("response", response);
+
     const users = response.data;
 
     const foundUser = users.find(

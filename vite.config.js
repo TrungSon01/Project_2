@@ -11,10 +11,12 @@ export default defineConfig({
       "f0cf-14-177-214-179.ngrok-free.app",
       "localhost",
       "127.0.0.1",
+      "192.168.0.112:5173",
     ],
     proxy: {
       "/api": {
-        target: "http://localhost:8000",
+        target: "http://192.168.0.112:8000",
+
         changeOrigin: true,
         secure: false,
       },

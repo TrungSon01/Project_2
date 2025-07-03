@@ -19,8 +19,8 @@ const SearchContainer = styled.div`
 const SearchInput = styled.input`
   width: 100%;
   padding: 8px;
-  border-radius: 5px;
-  border: 1px solid #ccc;
+  border-radius: 6px;
+  border: 1px solid #fe9a00;
 `;
 
 export default function SearchPage({ show, query, onChange, onSubmit }) {
